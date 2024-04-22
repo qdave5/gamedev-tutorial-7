@@ -41,12 +41,29 @@ func _physics_process(delta):
 		movement_vector -= head_basis.x
 	if Input.is_action_pressed("movement_right"):
 		movement_vector += head_basis.x
-
+	
 	movement_vector = movement_vector.normalized()
-
-	velocity = velocity.linear_interpolate(movement_vector * speed, acceleration * delta)
+	var movement_speed = speed
+	
+	# speed
+	if Input.is_action_pressed("crouch"):
+		movement_speed /= 2
+	elif Input.is_action_pressed("sprint"):
+		movement_speed *= 2
+	
+	# collision and camera position
+	if Input.is_action_pressed("crouch"):
+		$Head.translation.y = 0.5
+		$CollisionShape.scale.z = 0.5
+		$MeshInstance.scale.z = 0.5
+	else:
+		$Head.translation.y = 1
+		$CollisionShape.scale.z = 1
+		$MeshInstance.scale.z = 1
+	
+	velocity = velocity.linear_interpolate(movement_vector * movement_speed, acceleration * delta)
 	velocity.y -= gravity
-
+	
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y += jump_power
 
